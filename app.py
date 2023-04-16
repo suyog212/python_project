@@ -34,11 +34,16 @@ finally:
 with open('data.json','r') as f:
     data = json.load(f)
 print(str(data["current"]["dt"]))
-for i,(j,h) in enumerate(data["current"]):
-    if i != 'weather':
-        print(f"{i} : {j} = {h}")
-    else:
-        print("done")
-time = datetime.fromtimestamp(data["current"]["dt"],tz='IST')
+dt_dict = data['current']
+print(dt_dict)
+
+for i,j in enumerate(data):
+    print(f"{j}")
+# for i,(j,h) in enumerate(dt_dict.items()):
+#     if j != 'weather':
+#         print(f"{j} = {h}")
+#     else:
+#         print("done")
+time = datetime.fromtimestamp(data["current"]["dt"])
 
 print(time)
