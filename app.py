@@ -1,31 +1,44 @@
-import datetime as dt
+import json
 import requests
 from geopy.geocoders import Nominatim
-import json
+from datetime import datetime,timezone
 
-def get_weather(city_Name):
+def get_weather(city_name):
     #getting longitude and latitude
-    def get_long_lat(city_name):
+    def get_long_lat(name):
         geolocator = Nominatim(user_agent="Project")
-        location=geolocator.geocode(city_name)
+        location=geolocator.geocode(name)
         return [location.longitude,location.latitude]
-    
-    lat_long = get_long_lat(city_Name)
+    lat_long = get_long_lat(city_name)
     #API key
-    API_KEY = "f9955666136632343aff2e4ca9d9c909"
+    api_key = "f9955666136632343aff2e4ca9d9c909"
     #API url to fetch data
-    BASE_URL = "https://api.openweathermap.org/data/2.5/onecall?lat="
-    CITY = "London"
-    url = BASE_URL + lat_long[0] + "&lon="+ lat_long[1] + "&exclude=minutely&appid=" + API_KEY
+    base_url = "https://api.openweathermap.org/data/2.5/onecall?lat="
+    url = base_url + str(lat_long[0]) + "&lon="+ str(lat_long[1]) + "&exclude=minutely&appid=" + api_key
     #request object to fetch data from api
-    # res = requests.get(f"https://api.openweathermap.org/data/2.5/onecall?lat={lat_long[0]}&lon={lat_long[1]}&exclude=minutely&appid={API_KEY}").json()4
-    res = requests.get(url)
-    #Creating and adding data to JSON file 
-    with open("data.json","w") as file:
+    # res = requests.get(f"https://api.openweathermap.org/data/2.5/onecall?lat={lat_long[0]}&lon={lat_long[1]}&exclude=minutely&appid={api_key}").json()4
+    res = requests.get(url,timeout=100).json()
+    # print(ConnectionRefusedError)
+    #Creating and adding data to JSON file
+    with open("data.json","w",encoding="UTF-8") as file:
         json.dump(res,file)
-
     file.close()
 
+#try block to handle runtime errors
+try:
+    get_weather("London")
+finally:
+    print("Something went wrong")
 
-get_weather("London")
-print("Done !!!!!")
+#reading and filtering data
+with open('data.json','r') as f:
+    data = json.load(f)
+print(str(data["current"]["dt"]))
+for i,(j,h) in enumerate(data["current"]):
+    if i != 'weather':
+        print(f"{i} : {j} = {h}")
+    else:
+        print("done")
+time = datetime.fromtimestamp(data["current"]["dt"],tz='IST')
+
+print(time)
