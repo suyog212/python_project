@@ -3,7 +3,6 @@ import requests
 from geopy.geocoders import Nominatim
 import json
 
-
 def get_long_lat(city_name):
     geolocator = Nominatim(user_agent="geoapiExercises")
     location=geolocator.geocode(city_name)
