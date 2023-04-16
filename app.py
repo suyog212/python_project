@@ -14,7 +14,7 @@ CITY = "London"
 
 url = BASE_URL + "appid=" + API_KEY + "&q=" + CITY
 
-res = requests.get(f"https://api.openweathermap.org/data/2.5/onecall?lat=33.44&lon=-94.04&exclude=minutely&appid={API_KEY}").json()
+res = requests.get("https://api.openweathermap.org/data/2.5/onecall?lat=33.44&lon=-94.04&exclude=minutely&appid={API_KEY}").json()
 
 # js_data = json.dumps(res)
 
