@@ -3,10 +3,8 @@ import requests
 from geopy.geocoders import Nominatim
 import json
 
-#getting longitude and latitude
-
-
 def get_weather(city_Name):
+    #getting longitude and latitude
     def get_long_lat(city_name):
         geolocator = Nominatim(user_agent="Project")
         location=geolocator.geocode(city_name)
