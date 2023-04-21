@@ -4,7 +4,7 @@ from geopy.geocoders import Nominatim
 from datetime import datetime,timezone,timedelta
 
 #API key
-api_key = "f9955666136632343aff2e4ca9d9c909"
+api_key = open("api_key.txt",'r').read()
 
 time_now = datetime.now() - timedelta(days=4)
 
@@ -14,15 +14,19 @@ def get_long_lat(name):
         location=geolocator.geocode(name)
         return [location.longitude,location.latitude]
 
-
 def get_weather(city_name):
-    lat_long = get_long_lat(city_name)
+    def get_long_lat_2(name):
+        geolocator = Nominatim(user_agent="Project")
+        location=geolocator.geocode(name)
+        return [location.longitude,location.latitude]
+    lat_long = get_long_lat_2(city_name)
     #API url to fetch data
     base_url = "https://api.openweathermap.org/data/2.5/onecall?lat="
     url = base_url + str(lat_long[0]) + "&lon="+ str(lat_long[1]) + "&exclude=minutely&appid=" + api_key
     #request object to fetch data from api
     # res = requests.get(f"https://api.openweathermap.org/data/2.5/onecall?lat={lat_long[0]}&lon={lat_long[1]}&exclude=minutely&appid={api_key}").json()
     res = requests.get(url,timeout=100).json()
+    print(url)
     # print(ConnectionRefusedError)
     #Creating and adding data to JSON file
     """json.dumps() function will convert a subset of Python objects into a json string.
@@ -51,4 +55,4 @@ def weather_history(time_from,city_name):
     response = requests.get(url).json()
     print(response)
 
-weather_history(datetime.timestamp(time_now),"London")
+# weather_history(datetime.timestamp(time_now),"London")
