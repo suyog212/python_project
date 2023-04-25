@@ -4,7 +4,7 @@ from geopy.geocoders import Nominatim
 from datetime import datetime,timezone,timedelta
 
 #API key
-api_key = open("api_key.txt",'r').read()
+api_key = "e2886abff213b644be43bfc12e3daca1"
 
 time_now = datetime.now() - timedelta(days=4)
 
@@ -22,7 +22,7 @@ def get_weather(city_name):
     lat_long = get_long_lat_2(city_name)
     #API url to fetch data
     base_url = "https://api.openweathermap.org/data/2.5/onecall?lat="
-    url = base_url + str(lat_long[0]) + "&lon="+ str(lat_long[1]) + "&exclude=minutely&appid=" + api_key
+    url = base_url + str(lat_long[1]) + "&lon="+ str(lat_long[0]) + "&exclude=minutely&appid=" + api_key + "&units=metric"
     #request object to fetch data from api
     # res = requests.get(f"https://api.openweathermap.org/data/2.5/onecall?lat={lat_long[0]}&lon={lat_long[1]}&exclude=minutely&appid={api_key}").json()
     res = requests.get(url,timeout=100).json()
@@ -36,7 +36,7 @@ def get_weather(city_name):
         json.dump(res,file)
     file.close()
 
-get_weather("London")
+get_weather("Pune")
 
 #reading and filtering data
 with open('data.json','r') as f:

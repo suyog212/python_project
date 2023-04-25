@@ -19,7 +19,7 @@ def plot():
     for i in data:
         x_names.append(str(datetime.fromtimestamp(i["dt"]).time().isoformat("minutes")))
         x.append(i["dt"])
-        y.append(i["temp"] - 273.15)
+        y.append(i["temp"])
     # list of squares
     # y = [i**2 for i in range(101)]
   
