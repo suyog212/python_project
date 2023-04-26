@@ -7,6 +7,7 @@ import requests
 import json
 import pytz
 from PIL import Image,ImageTk
+import matplotlib.pyplot as plt
 from matplotlib.figure import Figure
 from matplotlib.backends.backend_tkagg import (FigureCanvasTkAgg, NavigationToolbar2Tk)
 
@@ -14,7 +15,7 @@ from matplotlib.backends.backend_tkagg import (FigureCanvasTkAgg, NavigationTool
 
 root = Tk("Weather app")
 root.title("Weather app")
-root.geometry("1280x720")
+root.geometry("1280x920")
 root.configure(bg="#57adff")
 
 root.resizable(False,False)
@@ -41,12 +42,11 @@ my_scrollbar.pack(side=RIGHT, fill=Y)
 # add new frame in canvas
 # my_canvas.create_window((0,0))
 
-
 def plot():
     with open("hourly.json","r") as file:
         data = json.load(file)
     # the figure that will contain the plot
-    fig = Figure(figsize = (15, 3),dpi = 100)
+    # fig = Figure(figsize = (15, 3),dpi = 100)
     x = []
     y = []
     x_names = []
@@ -55,34 +55,54 @@ def plot():
         x.append(i["dt"])
         y.append(i["temp"] - 273.15)
     # list of squares
-    # y = [i**2 for i in range(101)]
-  
-    # adding the subplot
-    plot1 = fig.add_subplot(111)
-  
-    # plotting the graph
-    plot1.plot(x[::3],y[::3])
-    plot1.set_title("Weekly forcast")
-    plot1.set_xlabel("Time")
-    plot1.set_ylabel("Temperature")
-    plot1.set_xticks(x[::4],labels=x_names[::4])
+    plt.figure(figsize=(12,3))
+    plt.plot(x[::3],y[::3])
+    plt.savefig("new.png")
+    temp_graph.config(image=ImageTk.PhotoImage(file="new.png"))
+    plt.close()
 
-    plot1.savefig('daily_data.png')
-    # creating the Tkinter canvas
-    # containing the Matplotlib figure
-    canvas = FigureCanvasTkAgg(fig,
-                               master = mat_frame)  
-    canvas.draw()
+
+# def plot():
+#     with open("hourly.json","r") as file:
+#         data = json.load(file)
+#     # the figure that will contain the plot
+#     fig = Figure(figsize = (15, 3),dpi = 100)
+#     x = []
+#     y = []
+#     x_names = []
+#     for i in data:
+#         x_names.append(str(datetime.fromtimestamp(i["dt"]).time().isoformat("minutes")))
+#         x.append(i["dt"])
+#         y.append(i["temp"] - 273.15)
+#     # list of squares
+#     # y = [i**2 for i in range(101)]
   
-    # placing the canvas on the Tkinter window
-    canvas.get_tk_widget().pack(side=BOTTOM)
+#     # adding the subplot
+#     plot1 = fig.add_subplot(111)
   
-    # creating the Matplotlib toolbar
-    toolbar = NavigationToolbar2Tk(canvas,root)
-    toolbar.update()
+#     # plotting the graph
+#     plot1.plot(x[::3],y[::3])
+#     plot1.set_title("Weekly forcast")
+#     plot1.set_xlabel("Time")
+#     plot1.set_ylabel("Temperature")
+#     plot1.set_xticks(x[::4],labels=x_names[::4])
+
+
+#     # creating the Tkinter canvas
+#     # containing the Matplotlib figure
+#     canvas = FigureCanvasTkAgg(fig,
+#                                master = mat_frame)  
+#     canvas.draw()
   
-    # placing the toolbar on the Tkinter window
-    canvas.get_tk_widget().pack()
+#     # placing the canvas on the Tkinter window
+#     canvas.get_tk_widget().pack(side=BOTTOM)
+  
+#     # creating the Matplotlib toolbar
+#     toolbar = NavigationToolbar2Tk(canvas,root)
+#     toolbar.update()
+  
+#     # placing the toolbar on the Tkinter window
+#     canvas.get_tk_widget().pack()
 
 def get_weather():
     city_name = textfield.get()
@@ -432,50 +452,17 @@ nineth_bottom.place(x=10,y=90)
 #cell no 10
 
 
-
-
 #matplotlib graph 
-mat_frame = Frame(my_canvas,bg="#282829",height=300,width=1280)
-mat_frame.place(x=0,y=720)
+mat_frame = Frame(my_canvas,bg="#282829",height=300,width=1280).place(x=0,y=720)
+temp_graph = Label(mat_frame,bg="#282829")
 # mat_canvas = Canvas(mat_frame,bg="#282829").place(x=5,y=725)
-
-# with open("hourly.json","r") as file:
-#         data = json.load(file)
-#     # the figure that will contain the plot
-# fig = Figure(figsize = (15, 3),dpi = 100)
-# x = []
-# y = []
-# x_names = []
-# for i in data:
-#     x_names.append(str(datetime.fromtimestamp(i["dt"]).time().isoformat("minutes")))
-#     x.append(i["dt"])
-#     y.append(i["temp"])
-# # list of squares
-# # y = [i**2 for i in range(101)]
-# # adding the subplot
-# plot1 = fig.add_subplot(111)
-
-# # plotting the graph
-# plot1.plot(x[::3],y[::3])
-# plot1.set_title("Weekly forcast")
-# plot1.set_xlabel("Time")
-# plot1.set_ylabel("Temperature")
-# plot1.set_xticks(x[::4],labels=x_names[::4])
-# # creating the Tkinter canvas
-# # containing the Matplotlib figure
-# canvas = FigureCanvasTkAgg(fig,
-#                            master = mat_frame)  
-# canvas.draw()
-
-# # placing the canvas on the Tkinter window
-# canvas.get_tk_widget().pack(side=BOTTOM)
 
 # # configure the canvas
 # main_frame.configure(yscrollcommand=my_scrollbar.set(first=0,last=1))
-# main_frame.bind(
-#     '<Configure>', lambda e: my_canvas.configure(scrollregion=main_frame.bbox("all"))
-# )
 my_scrollbar.config(command =my_canvas.yview)
+my_canvas.bind(
+    '<Configure>', lambda e: my_canvas.configure(scrollregion=main_frame.bbox("all"))
+)
 
 #clock 
 clock = Label(my_canvas,text=f"{time_12_format}",font=("Helvetica",40,"bold"),fg="white",bg="#57adff")
