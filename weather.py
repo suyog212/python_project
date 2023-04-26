@@ -67,7 +67,7 @@ def plot():
     plot1.set_ylabel("Temperature")
     plot1.set_xticks(x[::4],labels=x_names[::4])
 
-
+    plot1.savefig('daily_data.png')
     # creating the Tkinter canvas
     # containing the Matplotlib figure
     canvas = FigureCanvasTkAgg(fig,
