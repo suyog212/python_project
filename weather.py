@@ -19,7 +19,7 @@ root.geometry("1280x920")
 root.configure(bg="#57adff")
 
 root.resizable(False,False)
-api_key = "e2886abff213b644be43bfc12e3daca1"
+api_key = ""
 
 
 #main canvas
