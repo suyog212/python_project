@@ -14,7 +14,7 @@ root.geometry("1280x890")
 root.configure(bg="#57adff")
 
 root.resizable(False, False)
-api_key = "fbec594df638b061b0efa394becdc454"
+api_key = ""
 
 # main
 main_frame = Frame(root, height=1000, width=1280)
@@ -27,11 +27,12 @@ my_scrollbar.pack(side=RIGHT, fill=Y)
 my_canvas = Canvas(main_frame, bg="#57adff", height=1000, xscrollcommand=my_scrollbar.set)
 my_canvas.pack(side=LEFT, fill=BOTH, expand=1)
 
+
 def plot():
     with open("hourly.json", "r") as file:
         data = json.load(file)
     # the figure that will contain the plot
-    fig = Figure(figsize=(13, 3), dpi=100,facecolor="#282829")
+    fig = Figure(figsize=(13, 3), dpi=100, facecolor="#282829")
     x = []
     y = []
     x_names = []
@@ -39,16 +40,14 @@ def plot():
         x_names.append(str(datetime.fromtimestamp(i["dt"]).time().isoformat("minutes")))
         x.append(i["dt"])
         y.append(i["temp"])
-    # list of squares
-    # y = [i**2 for i in range(101)]
 
     # adding the subplot
     plot1 = fig.add_subplot(111)
     plot1.set_facecolor("#282829")
     # plotting the graph
     plot1.plot(x[::3], y[::3])
-    plot1.tick_params(axis='x',colors="w")
-    plot1.tick_params(axis='y',colors="w")
+    plot1.tick_params(axis='x', colors="w")
+    plot1.tick_params(axis='y', colors="w")
     plot1.xaxis.label.set_color('w')
     plot1.yaxis.label.set_color('w')
     plot1.set_title("Daily forcast")
@@ -61,7 +60,7 @@ def plot():
     canvas.draw()
 
     # placing the canvas on the Tkinter window
-    canvas.get_tk_widget().pack(side=BOTTOM,fill=BOTH,anchor='nw')
+    canvas.get_tk_widget().pack(side=BOTTOM, fill=BOTH, anchor='nw')
 
     # creating the Matplotlib toolbar
     toolbar = NavigationToolbar2Tk(canvas, root)
@@ -69,6 +68,7 @@ def plot():
 
     # placing the toolbar on the Tkinter window
     canvas.get_tk_widget().pack()
+
 
 def get_weather():
     city_name = textfield.get()
@@ -78,16 +78,12 @@ def get_weather():
     base_url = "https://api.openweathermap.org/data/2.5/onecall?lat="
     url = base_url + str(location.latitude) + "&lon=" + str(
         location.longitude) + "&exclude=minutely&appid=" + api_key + "&units=metric"
-    # request object to fetch data from api res = requests.get(
-    # f"https://api.openweathermap.org/data/2.5/onecall?lat={lat_long[0]}&lon={lat_long[1]}&exclude=minutely&appid={
-    # api_key}").json()
     res = requests.get(url, timeout=100).json()
     print(url)
-    # print(ConnectionRefusedError)
     # Creating and adding data to JSON file
-    """json.dumps() function will convert a subset of Python objects into a json string.
-    Not all objects are convertible and you may need to create a dictionary
-    of data you wish to expose before serializing to JSON."""
+    # json.dumps() function will convert a subset of Python objects into a json string.
+    # Not all objects are convertible and you may need to create a dictionary
+    # of data you wish to expose before serializing to JSON.
     with open("data.json", "w", encoding="UTF-8") as file:
         json.dump(res, file)
     file.close()
@@ -182,6 +178,8 @@ def format_time(timestamp):
     time_now = datetime.fromtimestamp(timestamp).time().isoformat(timespec="minutes")
     now = datetime.strptime(str(time_now), "%H:%M", )
     return now.strftime("%I:%M %p")
+
+
 # reading data from json file
 
 time_now = datetime.now().time().isoformat(timespec="minutes")
@@ -241,7 +239,6 @@ myImage_icon = Button(root, image=Search_icon, borderwidth=0, cursor="hand2", bg
                       command=get_weather
                       )
 myImage_icon.place(x=995, y=55)
-
 
 ## Bottom Box
 frame = Frame(my_canvas, width=1280, height=170, bg="#203243")
