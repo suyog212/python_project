@@ -14,7 +14,7 @@ root.geometry("1280x890")
 root.configure(bg="#57adff")
 
 root.resizable(False, False)
-api_key = ""
+api_key = "" # Enter API key here 
 
 # main
 main_frame = Frame(root, height=1000, width=1280)
