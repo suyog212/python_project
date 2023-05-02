@@ -4,13 +4,14 @@ from geopy.geocoders import Nominatim
 from datetime import *
 import requests
 import json
+from tkinter import messagebox
 from PIL import ImageTk
 from matplotlib.figure import Figure
 from matplotlib.backends.backend_tkagg import (FigureCanvasTkAgg, NavigationToolbar2Tk)
 
-root = Tk("Weather app")
+root = Tk()
 root.title("Weather app")
-root.geometry("1280x890")
+root.geometry("1280x900")
 root.configure(bg="#57adff")
 
 root.resizable(False, False)
@@ -28,11 +29,16 @@ my_canvas = Canvas(main_frame, bg="#57adff", height=1000, xscrollcommand=my_scro
 my_canvas.pack(side=LEFT, fill=BOTH, expand=1)
 
 
+def format_time(timestamp,time_offset):
+    time_now = datetime.utcfromtimestamp(timestamp+time_offset).time().isoformat(timespec="minutes")
+    now = datetime.strptime(str(time_now), "%H:%M", )
+    return now.strftime("%I:%M %p")
+
 def plot():
     with open("hourly.json", "r") as file:
         data = json.load(file)
     # the figure that will contain the plot
-    fig = Figure(figsize=(13, 3), dpi=100, facecolor="#282829")
+    fig = Figure(figsize=(12.8, 3), dpi=100, facecolor="#282829")
     x = []
     y = []
     x_names = []
@@ -71,113 +77,116 @@ def plot():
 
 
 def get_weather():
-    city_name = textfield.get()
-    geolocator = Nominatim(user_agent="Project")
-    location = geolocator.geocode(city_name)
-    # API url to fetch data
-    base_url = "https://api.openweathermap.org/data/2.5/onecall?lat="
-    url = base_url + str(location.latitude) + "&lon=" + str(
-        location.longitude) + "&exclude=minutely&appid=" + api_key + "&units=metric"
-    res = requests.get(url, timeout=100).json()
-    print(url)
-    # Creating and adding data to JSON file
-    # json.dumps() function will convert a subset of Python objects into a json string.
-    # Not all objects are convertible and you may need to create a dictionary
-    # of data you wish to expose before serializing to JSON.
-    with open("data.json", "w", encoding="UTF-8") as file:
-        json.dump(res, file)
-    file.close()
-    with open("data.json", 'r') as file_2:
-        we_data = json.load(file_2)
-    w_time = ["current", "hourly", "daily"]
-    for i in w_time:
-        with open(f"{i}.json", "w") as sorted_data:
-            json.dump(we_data[i], sorted_data)
-    with open("current.json", "r") as file:
-        data = json.load(file)
+    try:
+        city_name = textfield.get()
+        geolocator = Nominatim(user_agent="Project")
+        location = geolocator.geocode(city_name)
+        # API url to fetch data
+        base_url = "https://api.openweathermap.org/data/2.5/onecall?lat="
+        url = base_url + str(location.latitude) + "&lon=" + str(
+            location.longitude) + "&exclude=minutely&appid=" + api_key + "&units=metric"
+        res_2 = requests.get(url, timeout=100)
+        res = res_2.json()
+        print(url)
+        # Creating and adding data to JSON file
+        # json.dumps() function will convert a subset of Python objects into a json string.
+        # Not all objects are convertible, and you may need to create a dictionary
+        # of data you wish to expose before serializing to JSON.
+        if res_2.status_code == 200:
+            with open("data.json", "w", encoding="UTF-8") as file:
+                json.dump(res, file)
+            file.close()
+            with open("data.json", 'r') as file_2:
+                we_data = json.load(file_2)
+            w_time = ["current", "hourly", "daily"]
+            for i in w_time:
+                with open(f"{i}.json", "w") as sorted_data:
+                    json.dump(we_data[i], sorted_data)
+            with open("current.json", "r") as file:
+                data = json.load(file)
 
-    with open("hourly.json", "r") as file:
-        data_hour_1 = json.load(file)
-        data_hour = data_hour_1[::2]
-    first.config(text=format_time(data_hour[0]['dt']))
-    t.config(text=f"{data['temp']} ℃")
-    h.config(text=f"{data['humidity']} %")
-    w.config(text=f"{data['wind_speed']} m/s")
-    p.config(text=f"{data['pressure']} hPa")
-    v.config(text=f"{data['visibility'] / 1000} Km")
-    d.config(text=f"{data['weather'][0]['description']}")
+            with open("hourly.json", "r") as file:
+                data_hour_1 = json.load(file)
+                data_hour = data_hour_1[::2]
+            first.config(text=format_time(data['dt'],we_data['timezone_offset']))
+            t.config(text=f"{data['temp']} ℃")
+            h.config(text=f"{data['humidity']} %")
+            w.config(text=f"{data['wind_speed']} m/s")
+            p.config(text=f"{data['pressure']} hPa")
+            v.config(text=f"{data['visibility'] / 1000} Km")
+            d.config(text=f"{data['weather'][0]['description']}")
 
-    today.config(text=time_12_format)
-    # data configs
-    today_Bottom.config(text=f"{data['temp']} ℃", font=("Helvetica", 22, "bold"))
-    # today_bottom.config(text=f"{data['weather'][0]['description']}", font=("Helvetica", 16, "bold"))
-    first_bottom.config(text=f"{data_hour[0]['temp']} ℃")
-    second.config(text=format_time(data_hour[1]['dt']))
-    second_bottom.config(text=f"{data_hour[1]['temp']} ℃")
-    third.config(text=format_time(data_hour[2]['dt']))
-    third_bottom.config(text=f"{data_hour[2]['temp']} ℃")
-    fourth.config(text=format_time(data_hour[3]['dt']))
-    fourth_bottom.config(text=f"{data_hour[3]['temp']} ℃")
-    fifth.config(text=format_time(data_hour[4]['dt']))
-    fifth_bottom.config(text=f"{data_hour[4]['temp']} ℃")
-    sixth.config(text=format_time(data_hour[5]['dt']))
-    sixth_bottom.config(text=f"{data_hour[5]['temp']} ℃")
-    seventh.config(text=format_time(data_hour[6]['dt']))
-    seventh_bottom.config(text=f"{data_hour[6]['temp']} ℃")
-    eightth.config(text=format_time(data_hour[7]['dt']))
-    eightth_bottom.config(text=f"{data_hour[7]['temp']} ℃")
-    nineth.config(text=format_time(data_hour[8]['dt']))
-    nineth_bottom.config(text=f"{data_hour[8]['temp']} ℃")
+            today.config(text=format_time(data['dt'],we_data['timezone_offset']))
+            city.config(text=str(location.address))
+            # data configs
+            today_Bottom.config(text=f"{data['temp']} ℃", font=("Helvetica", 22, "bold"))
+            # today_bottom.config(text=f"{data['weather'][0]['description']}", font=("Helvetica", 16, "bold"))
+            first_bottom.config(text=f"{data_hour[0]['temp']} ℃")
+            second.config(text=format_time(data_hour[1]['dt'],we_data['timezone_offset']))
+            second_bottom.config(text=f"{data_hour[1]['temp']} ℃")
+            third.config(text=format_time(data_hour[2]['dt'],we_data['timezone_offset']))
+            third_bottom.config(text=f"{data_hour[2]['temp']} ℃")
+            fourth.config(text=format_time(data_hour[3]['dt'],we_data['timezone_offset']))
+            fourth_bottom.config(text=f"{data_hour[3]['temp']} ℃")
+            fifth.config(text=format_time(data_hour[4]['dt'],we_data['timezone_offset']))
+            fifth_bottom.config(text=f"{data_hour[4]['temp']} ℃")
+            sixth.config(text=format_time(data_hour[5]['dt'],we_data['timezone_offset']))
+            sixth_bottom.config(text=f"{data_hour[5]['temp']} ℃")
+            seventh.config(text=format_time(data_hour[6]['dt'],we_data['timezone_offset']))
+            seventh_bottom.config(text=f"{data_hour[6]['temp']} ℃")
+            eightth.config(text=format_time(data_hour[7]['dt'],we_data['timezone_offset']))
+            eightth_bottom.config(text=f"{data_hour[7]['temp']} ℃")
+            nineth.config(text=format_time(data_hour[8]['dt'],we_data['timezone_offset']))
+            nineth_bottom.config(text=f"{data_hour[8]['temp']} ℃")
 
-    # image icons
-    today_Icon = ImageTk.PhotoImage(file=f"icons/{data['weather'][0]['icon']}.png")
-    today_image.config(image=today_Icon)
-    today_image.image = today_Icon
+            # image icons
+            today_Icon = ImageTk.PhotoImage(file=f"icons/{data['weather'][0]['icon']}.png")
+            today_image.config(image=today_Icon)
+            today_image.image = today_Icon
 
-    first_Icon = ImageTk.PhotoImage(file=f"icons/{data_hour[0]['weather'][0]['icon']}.png")
-    first_image.config(image=first_Icon, height=50, width=50)
-    first_image.image = first_Icon
+            first_Icon = ImageTk.PhotoImage(file=f"icons/{data_hour[0]['weather'][0]['icon']}.png")
+            first_image.config(image=first_Icon, height=50, width=50)
+            first_image.image = first_Icon
 
-    second_Icon = ImageTk.PhotoImage(file=f"icons/{data_hour[1]['weather'][0]['icon']}.png")
-    second_image.config(image=second_Icon, height=60, width=60)
-    second_image.image = second_Icon
+            second_Icon = ImageTk.PhotoImage(file=f"icons/{data_hour[1]['weather'][0]['icon']}.png")
+            second_image.config(image=second_Icon, height=60, width=60)
+            second_image.image = second_Icon
 
-    third_Icon = ImageTk.PhotoImage(file=f"icons/{data_hour[2]['weather'][0]['icon']}.png")
-    third_image.config(image=third_Icon, height=60, width=60)
-    third_image.image = third_Icon
+            third_Icon = ImageTk.PhotoImage(file=f"icons/{data_hour[2]['weather'][0]['icon']}.png")
+            third_image.config(image=third_Icon, height=60, width=60)
+            third_image.image = third_Icon
 
-    fourth_Icon = ImageTk.PhotoImage(file=f"icons/{data_hour[3]['weather'][0]['icon']}.png")
-    fourth_image.config(image=fourth_Icon, height=60, width=60)
-    fourth_image.image = fourth_Icon
+            fourth_Icon = ImageTk.PhotoImage(file=f"icons/{data_hour[3]['weather'][0]['icon']}.png")
+            fourth_image.config(image=fourth_Icon, height=60, width=60)
+            fourth_image.image = fourth_Icon
 
-    fifth_Icon = ImageTk.PhotoImage(file=f"icons/{data_hour[4]['weather'][0]['icon']}.png")
-    fifth_image.config(image=fifth_Icon, height=60, width=60)
-    fifth_image.image = fifth_Icon
+            fifth_Icon = ImageTk.PhotoImage(file=f"icons/{data_hour[4]['weather'][0]['icon']}.png")
+            fifth_image.config(image=fifth_Icon, height=60, width=60)
+            fifth_image.image = fifth_Icon
 
-    sixth_Icon = ImageTk.PhotoImage(file=f"icons/{data_hour[5]['weather'][0]['icon']}.png")
-    sixth_image.config(image=sixth_Icon, height=60, width=60)
-    sixth_image.image = sixth_Icon
+            sixth_Icon = ImageTk.PhotoImage(file=f"icons/{data_hour[5]['weather'][0]['icon']}.png")
+            sixth_image.config(image=sixth_Icon, height=60, width=60)
+            sixth_image.image = sixth_Icon
 
-    seventh_Icon = ImageTk.PhotoImage(file=f"icons/{data_hour[6]['weather'][0]['icon']}.png")
-    seventh_image.config(image=seventh_Icon, height=60, width=60)
-    seventh_image.image = seventh_Icon
+            seventh_Icon = ImageTk.PhotoImage(file=f"icons/{data_hour[6]['weather'][0]['icon']}.png")
+            seventh_image.config(image=seventh_Icon, height=60, width=60)
+            seventh_image.image = seventh_Icon
 
-    eightth_Icon = ImageTk.PhotoImage(file=f"icons/{data_hour[7]['weather'][0]['icon']}.png")
-    eightth_image.config(image=eightth_Icon, height=60, width=60)
-    eightth_image.image = eightth_Icon
+            eightth_Icon = ImageTk.PhotoImage(file=f"icons/{data_hour[7]['weather'][0]['icon']}.png")
+            eightth_image.config(image=eightth_Icon, height=60, width=60)
+            eightth_image.image = eightth_Icon
 
-    nineth_Icon = ImageTk.PhotoImage(file=f"icons/{data_hour[8]['weather'][0]['icon']}.png")
-    nineth_image.config(image=nineth_Icon, height=60, width=60)
-    nineth_image.image = nineth_Icon
+            nineth_Icon = ImageTk.PhotoImage(file=f"icons/{data_hour[8]['weather'][0]['icon']}.png")
+            nineth_image.config(image=nineth_Icon, height=60, width=60)
+            nineth_image.image = nineth_Icon
 
-    plot()
+            plot()
+        else:
+            messagebox.showerror("Error","Enter valid city name")
+    except:
+        messagebox.showerror("Error","Something went wrong")
     # temp_graph.config(image=ImageTk.PhotoImage(file="new.png"))
 
-
-def format_time(timestamp):
-    time_now = datetime.fromtimestamp(timestamp).time().isoformat(timespec="minutes")
-    now = datetime.strptime(str(time_now), "%H:%M", )
-    return now.strftime("%I:%M %p")
 
 
 # reading data from json file
@@ -186,7 +195,9 @@ time_now = datetime.now().time().isoformat(timespec="minutes")
 now = datetime.strptime(str(time_now), "%H:%M")
 time_12_format = now.strftime("%I:%M %p")
 
-##icon
+city = Label(my_canvas,font=('Helvetica', 14, "bold"), fg="black", bg="#57adff")
+city.place(x=750,y=370)
+# Icon
 Image_icon = PhotoImage(file="icons/logo.png")
 root.iconphoto(False, Image_icon)
 
@@ -221,8 +232,9 @@ d = Label(my_canvas, font=('Helvetica', 14, "bold"), fg="black", bg="#57adff")
 d.place(x=240, y=300)
 label1.place(x=70, y=300)
 
-##Search box
-Search_box = PhotoImage(file="icons\Rounded Rectangle 3.png")
+# Search box
+path = "icons\\rec_3.png"
+Search_box = PhotoImage(file=path)
 my_image = Label(image=Search_box, bg="#57adff")
 my_image.place(x=620, y=50)
 
@@ -240,13 +252,13 @@ myImage_icon = Button(root, image=Search_icon, borderwidth=0, cursor="hand2", bg
                       )
 myImage_icon.place(x=995, y=55)
 
-## Bottom Box
+# Bottom Box
 frame = Frame(my_canvas, width=1280, height=170, bg="#203243")
 frame.place(x=0, y=420)
 
 # bottom boxes
-first_box = PhotoImage(file="icons\Rounded Rectangle 2.png")
-second_box = PhotoImage(file="icons\Rounded Rectangle 2 copy.png")
+first_box = PhotoImage(file="icons\\rec_2.png",master=frame)
+second_box = PhotoImage(file="icons\\rec_2_copy.png",master=frame)
 # current weather cell
 
 Label(frame, image=first_box, bg="#212120").place(x=30, y=20)
