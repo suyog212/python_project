@@ -1,4 +1,4 @@
 geopy
 requests
-PIL
+pillow
 matplotlib
